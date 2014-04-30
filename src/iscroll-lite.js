@@ -75,7 +75,9 @@ var m = Math,
 
 			// Events
 			onRefresh: null,
-			onBeforeScrollStart: function (e) { e.preventDefault(); },
+			onBeforeScrollStart: function (e) {
+				if(!hasTouch) e.preventDefault();
+			},
 			onScrollStart: null,
 			onBeforeScrollMove: null,
 			onScrollMove: null,
@@ -255,8 +257,16 @@ iScroll.prototype = {
 			}
 		}
 
+		var oldX = that.x;
+		var oldY = that.y;
+
 		that.moved = true;
 		that._pos(newX, newY);
+
+		if (hasTouch && (that.x !== oldX || that.y !== oldY)) {
+			e.preventDefault();
+		}
+
 		that.dirX = deltaX > 0 ? -1 : deltaX < 0 ? 1 : 0;
 		that.dirY = deltaY > 0 ? -1 : deltaY < 0 ? 1 : 0;
 

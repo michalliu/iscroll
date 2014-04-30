@@ -224,6 +224,12 @@ iScroll.prototype = {
 		this.refresh();
 	},
 	
+	_clickInterceptor: function (e) {
+		// Click event handler that is attached on the scrolled element
+		// to prevent clicks during scrolling.
+		e.preventDefault();
+	},
+
 	_scrollbar: function (dir) {
 		var that = this,
 			bar;
@@ -423,6 +429,10 @@ iScroll.prototype = {
 
 		if (that.options.onBeforeScrollMove) that.options.onBeforeScrollMove.call(that, e);
 
+		// Disable clicks during scrolling. We use "capture" mode for the
+		// listener to make sure it gets executed before any other handlers.
+		that.scroller.addEventListener('click', that._clickInterceptor, true);
+
 		// Zoom
 		if (that.options.zoom && hasTouch && e.touches.length > 1) {
 			e.preventDefault();
@@ -520,6 +530,11 @@ iScroll.prototype = {
 		that._unbind(MOVE_EV, window);
 		that._unbind(END_EV, window);
 		that._unbind(CANCEL_EV, window);
+
+		// Enable clicking again
+		setTimeout(function() {  // We need to delay it 1ms or a click might get triggered
+			that.scroller.removeEventListener('click', that._clickInterceptor, true);
+		}, 1);
 
 		if (that.options.onBeforeScrollEnd) that.options.onBeforeScrollEnd.call(that, e);
 
